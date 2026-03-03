@@ -13,4 +13,5 @@ export interface TeacherFormData {
   email: string;
   phone: string;
   subjects: string[];
+  hourlyRate: number;
 }

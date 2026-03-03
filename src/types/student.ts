@@ -14,5 +14,6 @@ export interface StudentFormData {
   grade: string;
   parentContact: string;
   ratePerClass: number; // 每节课费率
+  customRate?: number;
   notes?: string;
 }

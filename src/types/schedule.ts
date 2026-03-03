@@ -22,5 +22,6 @@ export interface ScheduleFormData {
   type: ScheduleType;
   startTime: string;
   endTime: string;
+  rate: number;
   notes?: string;
 }

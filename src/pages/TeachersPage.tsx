@@ -23,6 +23,7 @@ const TeachersPage = () => {
     email: '',
     phone: '',
     subjects: [],
+    hourlyRate: 0,
   });
   const [subjectInput, setSubjectInput] = useState('');
 
@@ -65,6 +66,7 @@ const TeachersPage = () => {
       email: teacher.email,
       phone: teacher.phone,
       subjects: teacher.subjects,
+      hourlyRate: 0,
     });
     setIsDialogOpen(true);
   };
@@ -119,6 +121,7 @@ const TeachersPage = () => {
       email: '',
       phone: '',
       subjects: [],
+      hourlyRate: 0,
     });
     setSubjectInput('');
   };

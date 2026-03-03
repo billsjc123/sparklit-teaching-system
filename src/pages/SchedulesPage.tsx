@@ -59,6 +59,7 @@ const SchedulesPage = () => {
     type: 'oneOnOne',
     startTime: '',
     endTime: '',
+    rate: 0,
     notes: '',
   });
 
@@ -208,6 +209,7 @@ const SchedulesPage = () => {
           type: scheduleToCopy.type,
           startTime: format(newStart, "yyyy-MM-dd'T'HH:mm"),
           endTime: format(newEnd, "yyyy-MM-dd'T'HH:mm"),
+          rate: 0,
           notes: scheduleToCopy.notes,
         });
         
@@ -350,6 +352,7 @@ const SchedulesPage = () => {
       type: 'oneOnOne',
       startTime: '',
       endTime: '',
+      rate: 0,
       notes: '',
     });
     setStudentSearchValue('');
@@ -370,6 +373,7 @@ const SchedulesPage = () => {
       type: 'oneOnOne',
       startTime: format(startTime, "yyyy-MM-dd'T'HH:mm"),
       endTime: format(endTime, "yyyy-MM-dd'T'HH:mm"),
+      rate: 0,
       notes: '',
     });
     setIsDialogOpen(true);
@@ -388,6 +392,7 @@ const SchedulesPage = () => {
       type: schedule.type,
       startTime: format(new Date(schedule.startTime), "yyyy-MM-dd'T'HH:mm"),
       endTime: format(new Date(schedule.endTime), "yyyy-MM-dd'T'HH:mm"),
+      rate: 0,
       notes: schedule.notes || '',
     });
     setSelectedSchedule(null); // 关闭详情对话框
