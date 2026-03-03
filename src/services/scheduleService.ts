@@ -68,9 +68,12 @@ export const checkScheduleConflict = (
   endTime: string,
   excludeId?: string
 ): boolean => {
-  // 检查任意课程的时间冲突（不限于同一教师）
+  // 只检查同一教师的时间冲突（不同教师可以在同一时间段上课）
   return schedules.some(schedule => {
     if (schedule.id === excludeId) return false;
+    
+    // 只检查同一教师的课程
+    if (schedule.teacherId !== teacherId) return false;
     
     const scheduleStart = new Date(schedule.startTime).getTime();
     const scheduleEnd = new Date(schedule.endTime).getTime();

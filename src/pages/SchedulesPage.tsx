@@ -141,7 +141,7 @@ const SchedulesPage = () => {
       toast({
         variant: "destructive",
         title: "时间冲突",
-        description: "该时间段与其他课程冲突，请选择其他时间",
+        description: "该教师在此时间段已有其他课程安排，请选择其他时间",
       });
       return;
     }
@@ -223,7 +223,7 @@ const SchedulesPage = () => {
       toast({
         variant: "destructive",
         title: `成功复制 ${successCount} 节课程`,
-        description: `以下日期存在冲突：${conflictDates.join(', ')}`,
+        description: `以下日期该教师已有课程安排：${conflictDates.join(', ')}`,
       });
     }
     
