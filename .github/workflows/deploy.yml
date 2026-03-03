@@ -1,9 +1,11 @@
-name: Deploy to Server
+name: 自动部署到服务器
 
+# 触发条件
 on:
   push:
     branches:
-      - main  # 推送到 main 分支时自动部署
+      - main  # 当推送到 main 分支时触发
+      - master
   workflow_dispatch:  # 允许手动触发
 
 jobs:
@@ -11,13 +13,59 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+      # 1. 检出代码
+      - name: 📥 检出代码
+        uses: actions/checkout@v4
+      
+      # 2. 设置 Node.js 环境
+      - name: 🔧 设置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      # 3. 安装依赖
+      - name: 📦 安装依赖
+        run: npm ci
+      
+      # 4. 构建项目
+      - name: 🔨 构建项目
+        run: npm run build
+      
+      # 5. 部署到服务器
       - name: 🚀 部署到服务器
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USERNAME }}
+          username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_PORT || 22 }}
           script: |
-            cd /var/www/teaching-system
-            bash deploy.sh production
+            cd /home/admin/server/sparklit-teaching-system
+            
+            echo "📥 拉取最新代码..."
+            git pull origin main
+            
+            echo "📦 安装依赖..."
+            npm install --production=false
+            
+            echo "🔨 构建前端..."
+            npm run build
+            
+            echo "🔄 重启后端服务..."
+            pm2 reload ecosystem.config.cjs --env production
+            
+            echo "✅ 检查服务状态..."
+            pm2 status
+            
+            echo "🎉 部署完成！"
+      
+      # 6. 发送通知 (可选)
+      - name: 📧 发送部署通知
+        if: always()
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "✅ 部署成功！"
+          else
+            echo "❌ 部署失败，请检查日志"
+          fi

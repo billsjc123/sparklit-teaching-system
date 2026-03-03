@@ -40,5 +40,9 @@ server/data/*.json
 .pm2
 ecosystem.config.js
 
+# GitHub Secrets 配置文件（包含敏感信息）
+.github-secrets*.txt
+.github-secrets*.md
+
 # OS
 Thumbs.db
