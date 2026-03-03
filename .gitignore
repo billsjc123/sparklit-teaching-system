@@ -28,6 +28,8 @@ dist-ssr
 
 # Server data (important: keep local data out of git)
 server/data/*.json
+server/data/*.db
+server/data/*.db-*
 !server/data/.gitkeep
 
 # Environment variables
