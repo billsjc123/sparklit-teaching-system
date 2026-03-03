@@ -76,8 +76,24 @@ jobs:
           script: |
             cd ${{ env.PROJECT_DIR }}
             
+            echo "💾 备份数据库..."
+            if [ -f server/data/teaching.db ]; then
+              cp server/data/teaching.db server/data/teaching.db.backup.$(date +%Y%m%d_%H%M%S)
+              echo "✅ 数据库已备份"
+              
+              # 保留最近 5 个备份
+              cd server/data
+              ls -t teaching.db.backup.* | tail -n +6 | xargs -r rm
+              cd ${{ env.PROJECT_DIR }}
+            else
+              echo "⚠️  未找到数据库文件，将在首次运行时创建"
+            fi
+            
             # 拉取最新代码
             git pull origin main
+            
+            # 确保数据目录存在
+            mkdir -p server/data
             
             # 安装后端依赖
             npm install --production

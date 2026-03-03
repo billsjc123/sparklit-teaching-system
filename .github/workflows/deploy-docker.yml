@@ -48,6 +48,18 @@ jobs:
           script: |
             cd /tmp
             
+            # 备份现有数据库（如果使用 volume 挂载）
+            if [ -d "/home/admin/teaching-data" ]; then
+              echo "💾 备份数据库..."
+              if [ -f /home/admin/teaching-data/teaching.db ]; then
+                cp /home/admin/teaching-data/teaching.db /home/admin/teaching-data/teaching.db.backup.$(date +%Y%m%d_%H%M%S)
+                echo "✅ 数据库已备份"
+              fi
+            else
+              echo "📂 创建数据目录..."
+              mkdir -p /home/admin/teaching-data
+            fi
+            
             # 加载镜像
             docker load < image.tar.gz
             
@@ -55,11 +67,12 @@ jobs:
             docker stop teaching-system || true
             docker rm teaching-system || true
             
-            # 启动新容器
+            # 启动新容器（挂载数据卷以保留数据库）
             docker run -d \
               --name teaching-system \
               --restart always \
               -p 3002:3002 \
+              -v /home/admin/teaching-data:/app/server/data \
               ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}
             
             # 清理
