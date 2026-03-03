@@ -73,8 +73,8 @@ ssh: unable to authenticate
 - **构建工具**: Vite
 - **UI 组件**: shadcn/ui + Tailwind CSS
 - **后端**: Express + Node.js
-- **数据存储**: 本地 JSON 文件
-- **部署**: PM2 + GitHub Actions
+- **数据存储**: 后端 API + JSON 文件存储
+- **部署**: PM2 + Nginx + GitHub Actions
 
 ## 📁 项目结构
 
