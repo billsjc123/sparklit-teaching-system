@@ -86,12 +86,21 @@ function initDatabase() {
 export const teacherDb = {
   // 获取所有教师
   getAll() {
-    return db.prepare('SELECT * FROM teachers ORDER BY createdAt DESC').all();
+    const teachers = db.prepare('SELECT * FROM teachers ORDER BY createdAt DESC').all();
+    // 解析 subjects JSON 字符串
+    return teachers.map(teacher => ({
+      ...teacher,
+      subjects: typeof teacher.subjects === 'string' ? JSON.parse(teacher.subjects) : teacher.subjects
+    }));
   },
 
   // 根据ID获取教师
   getById(id) {
-    return db.prepare('SELECT * FROM teachers WHERE id = ?').get(id);
+    const teacher = db.prepare('SELECT * FROM teachers WHERE id = ?').get(id);
+    if (teacher && typeof teacher.subjects === 'string') {
+      teacher.subjects = JSON.parse(teacher.subjects);
+    }
+    return teacher;
   },
 
   // 创建教师
@@ -194,7 +203,7 @@ export const studentDb = {
 // 课程安排操作
 export const scheduleDb = {
   getAll() {
-    return db.prepare(`
+    const schedules = db.prepare(`
       SELECT 
         s.*,
         t.name as teacherName
@@ -202,10 +211,15 @@ export const scheduleDb = {
       LEFT JOIN teachers t ON s.teacherId = t.id
       ORDER BY s.startTime DESC
     `).all();
+    // 解析 studentIds JSON 字符串
+    return schedules.map(schedule => ({
+      ...schedule,
+      studentIds: typeof schedule.studentIds === 'string' ? JSON.parse(schedule.studentIds) : schedule.studentIds
+    }));
   },
 
   getById(id) {
-    return db.prepare(`
+    const schedule = db.prepare(`
       SELECT 
         s.*,
         t.name as teacherName
@@ -213,10 +227,14 @@ export const scheduleDb = {
       LEFT JOIN teachers t ON s.teacherId = t.id
       WHERE s.id = ?
     `).get(id);
+    if (schedule && typeof schedule.studentIds === 'string') {
+      schedule.studentIds = JSON.parse(schedule.studentIds);
+    }
+    return schedule;
   },
 
   getByDateRange(startDate, endDate) {
-    return db.prepare(`
+    const schedules = db.prepare(`
       SELECT 
         s.*,
         t.name as teacherName
@@ -225,6 +243,11 @@ export const scheduleDb = {
       WHERE s.startTime >= ? AND s.startTime <= ?
       ORDER BY s.startTime ASC
     `).all(startDate, endDate);
+    // 解析 studentIds JSON 字符串
+    return schedules.map(schedule => ({
+      ...schedule,
+      studentIds: typeof schedule.studentIds === 'string' ? JSON.parse(schedule.studentIds) : schedule.studentIds
+    }));
   },
 
   create(schedule) {
