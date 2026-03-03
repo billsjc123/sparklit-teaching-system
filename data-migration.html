@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>数据迁移工具</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #333;
+      border-bottom: 2px solid #4CAF50;
+      padding-bottom: 10px;
+    }
+    button {
+      background: #4CAF50;
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 10px 5px;
+    }
+    button:hover {
+      background: #45a049;
+    }
+    .info {
+      background: #e3f2fd;
+      padding: 15px;
+      border-left: 4px solid #2196F3;
+      margin: 20px 0;
+    }
+    .success {
+      background: #e8f5e9;
+      border-left-color: #4CAF50;
+    }
+    .error {
+      background: #ffebee;
+      border-left-color: #f44336;
+    }
+    pre {
+      background: #f5f5f5;
+      padding: 15px;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📦 教学系统数据迁移工具</h1>
+    
+    <div class="info">
+      <h3>使用说明：</h3>
+      <p>1. 点击"检查localStorage数据"查看浏览器缓存中的数据</p>
+      <p>2. 如果有数据，点击"迁移到服务器"将数据保存到文件</p>
+      <p>3. 迁移完成后，在任何浏览器打开系统都能看到数据</p>
+    </div>
+
+    <div>
+      <button onclick="checkLocalStorage()">🔍 检查localStorage数据</button>
+      <button onclick="migrateToServer()">🚀 迁移到服务器</button>
+      <button onclick="clearLocalStorage()">🗑️ 清除localStorage</button>
+    </div>
+
+    <div id="result" style="margin-top: 20px;"></div>
+  </div>
+
+  <script>
+    const API_URL = 'http://localhost:3002/api';
+    const STORAGE_KEY = 'teaching-system-data';
+
+    function checkLocalStorage() {
+      const data = localStorage.getItem(STORAGE_KEY);
+      const resultDiv = document.getElementById('result');
+      
+      if (!data) {
+        resultDiv.innerHTML = '<div class="info error"><h3>❌ 未找到数据</h3><p>localStorage中没有找到教学系统数据</p></div>';
+        return;
+      }
+
+      try {
+        const parsed = JSON.parse(data);
+        resultDiv.innerHTML = `
+          <div class="info success">
+            <h3>✅ 找到数据</h3>
+            <p>教师: ${parsed.teachers?.length || 0} 人</p>
+            <p>学生: ${parsed.students?.length || 0} 人</p>
+            <p>课程: ${parsed.schedules?.length || 0} 节</p>
+          </div>
+          <h4>完整数据：</h4>
+          <pre>${JSON.stringify(parsed, null, 2)}</pre>
+        `;
+      } catch (e) {
+        resultDiv.innerHTML = `<div class="info error"><h3>❌ 数据格式错误</h3><p>${e.message}</p></div>`;
+      }
+    }
+
+    async function migrateToServer() {
+      const data = localStorage.getItem(STORAGE_KEY);
+      const resultDiv = document.getElementById('result');
+      
+      if (!data) {
+        resultDiv.innerHTML = '<div class="info error"><h3>❌ 未找到数据</h3><p>请先检查localStorage中是否有数据</p></div>';
+        return;
+      }
+
+      try {
+        const parsed = JSON.parse(data);
+        const response = await fetch(`${API_URL}/data`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(parsed),
+        });
+
+        if (response.ok) {
+          resultDiv.innerHTML = `
+            <div class="info success">
+              <h3>✅ 迁移成功！</h3>
+              <p>数据已保存到服务器文件</p>
+              <p>教师: ${parsed.teachers?.length || 0} 人</p>
+              <p>学生: ${parsed.students?.length || 0} 人</p>
+              <p>课程: ${parsed.schedules?.length || 0} 节</p>
+              <p><strong>现在可以在任何浏览器中访问这些数据了！</strong></p>
+            </div>
+          `;
+        } else {
+          throw new Error('服务器响应错误');
+        }
+      } catch (e) {
+        resultDiv.innerHTML = `<div class="info error"><h3>❌ 迁移失败</h3><p>${e.message}</p><p>请确保数据服务器正在运行（端口3002）</p></div>`;
+      }
+    }
+
+    function clearLocalStorage() {
+      if (confirm('确定要清除localStorage中的数据吗？\n\n建议先迁移到服务器再清除！')) {
+        localStorage.removeItem(STORAGE_KEY);
+        document.getElementById('result').innerHTML = '<div class="info success"><h3>✅ 已清除</h3><p>localStorage数据已清除</p></div>';
+      }
+    }
+  </script>
+</body>
+</html>
