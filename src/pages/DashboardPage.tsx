@@ -24,17 +24,16 @@ const DashboardPage = () => {
     });
   };
 
-  // 获取下一天（明天）的所有课程
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  tomorrow.setHours(0, 0, 0, 0);
-  const tomorrowEnd = new Date(tomorrow);
-  tomorrowEnd.setHours(23, 59, 59, 999);
+  // 获取今天的所有课程
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const todayEnd = new Date(today);
+  todayEnd.setHours(23, 59, 59, 999);
 
-  const tomorrowSchedules = state.schedules
+  const todaySchedules = state.schedules
     .filter(s => {
       const scheduleDate = new Date(s.startTime);
-      return scheduleDate >= tomorrow && scheduleDate <= tomorrowEnd;
+      return scheduleDate >= today && scheduleDate <= todayEnd;
     })
     .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
 
@@ -122,14 +121,14 @@ const DashboardPage = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle>明天的课程安排</CardTitle>
+            <CardTitle>今日课程安排</CardTitle>
           </CardHeader>
           <CardContent>
-            {tomorrowSchedules.length === 0 ? (
-              <p className="text-gray-500 text-center py-8">明天暂无课程安排</p>
+            {todaySchedules.length === 0 ? (
+              <p className="text-gray-500 text-center py-8">今日暂无课程安排</p>
             ) : (
               <div className="space-y-3">
-                {tomorrowSchedules.map(schedule => (
+                {todaySchedules.map(schedule => (
                   <div
                     key={schedule.id}
                     className={`flex items-center justify-between p-3 rounded-lg transition-colors ${
