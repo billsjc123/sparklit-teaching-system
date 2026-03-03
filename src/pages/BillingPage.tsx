@@ -116,8 +116,7 @@ const BillingPage = () => {
         <Tabs defaultValue="students" className="w-full">
           <TabsList>
             <TabsTrigger value="students">学生费用明细</TabsTrigger>
-            <TabsTrigger value="teachers">教师工作统计</TabsTrigger>
-            <TabsTrigger value="teacher-revenue">教师收入统计</TabsTrigger>
+            <TabsTrigger value="teachers">教师统计</TabsTrigger>
           </TabsList>
 
           <TabsContent value="students" className="mt-6">
@@ -257,47 +256,15 @@ const BillingPage = () => {
           </TabsContent>
 
           <TabsContent value="teachers" className="mt-6">
-            <div className="bg-white rounded-lg shadow">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>教师姓名</TableHead>
-                    <TableHead>完成课程数</TableHead>
-                    <TableHead className="text-right">总课时 (小时)</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {report.teacherStats.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={3} className="text-center text-gray-500 py-8">
-                        本月暂无教师统计数据
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    report.teacherStats.map(stat => (
-                      <TableRow key={stat.teacherId}>
-                        <TableCell className="font-medium">{stat.teacherName}</TableCell>
-                        <TableCell>{stat.completedCount} 节</TableCell>
-                        <TableCell className="text-right font-semibold text-primary-600">
-                          {stat.totalHours.toFixed(2)} 小时
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="teacher-revenue" className="mt-6">
             <div className="space-y-6">
-              {/* 教师收入汇总表 */}
+              {/* 教师工作与收入汇总表 */}
               <div className="bg-white rounded-lg shadow">
                 <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead>教师姓名</TableHead>
                       <TableHead>完成课程数</TableHead>
+                      <TableHead className="text-right">总课时 (小时)</TableHead>
                       <TableHead className="text-right">人民币收入 (¥)</TableHead>
                       <TableHead className="text-right">港币收入 (HK$)</TableHead>
                       <TableHead className="text-right">总收入 (合并)</TableHead>
@@ -306,8 +273,8 @@ const BillingPage = () => {
                   <TableBody>
                     {report.teacherRevenues.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={5} className="text-center text-gray-500 py-8">
-                          本月暂无教师收入数据
+                        <TableCell colSpan={6} className="text-center text-gray-500 py-8">
+                          本月暂无教师数据
                         </TableCell>
                       </TableRow>
                     ) : (
@@ -315,6 +282,9 @@ const BillingPage = () => {
                         <TableRow key={revenue.teacherId}>
                           <TableCell className="font-medium">{revenue.teacherName}</TableCell>
                           <TableCell>{revenue.completedCount} 节</TableCell>
+                          <TableCell className="text-right font-semibold text-primary-600">
+                            {revenue.totalHours.toFixed(2)} 小时
+                          </TableCell>
                           <TableCell className="text-right font-semibold text-blue-600">
                             {revenue.totalRevenueCNY > 0 ? `¥${revenue.totalRevenueCNY.toFixed(2)}` : '-'}
                           </TableCell>
@@ -341,7 +311,7 @@ const BillingPage = () => {
                         <CardTitle className="text-base flex items-center gap-2">
                           <span>{revenue.teacherName}</span>
                           <span className="text-gray-600 font-normal">
-                            - 共 {revenue.completedCount} 节课
+                            - 共 {revenue.completedCount} 节课，{revenue.totalHours.toFixed(2)} 小时
                           </span>
                           {revenue.totalRevenueCNY > 0 && (
                             <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
