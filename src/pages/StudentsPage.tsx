@@ -23,6 +23,7 @@ const StudentsPage = () => {
     grade: '',
     parentContact: '',
     ratePerClass: 0,
+    currency: 'CNY', // 默认人民币
     notes: '',
   });
 
@@ -70,6 +71,7 @@ const StudentsPage = () => {
       grade: student.grade,
       parentContact: student.parentContact,
       ratePerClass: student.ratePerClass,
+      currency: student.currency,
       notes: student.notes || '',
     });
     setIsDialogOpen(true);
@@ -125,6 +127,7 @@ const StudentsPage = () => {
       grade: '',
       parentContact: '',
       ratePerClass: 0,
+      currency: 'CNY',
       notes: '',
     });
   };
@@ -179,20 +182,35 @@ const StudentsPage = () => {
                 </div>
                 
                 <div>
-                  <Label htmlFor="ratePerClass">每节课费率 (元) *</Label>
-                  <Input
-                    id="ratePerClass"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={formData.ratePerClass}
-                    onChange={e => setFormData({ 
-                      ...formData, 
-                      ratePerClass: parseFloat(e.target.value) || 0
-                    })}
-                    required
-                    placeholder="例如：100"
-                  />
+                  <Label htmlFor="ratePerClass">每节课费率 *</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="ratePerClass"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={formData.ratePerClass}
+                      onChange={e => setFormData({ 
+                        ...formData, 
+                        ratePerClass: parseFloat(e.target.value) || 0
+                      })}
+                      required
+                      placeholder="例如：100"
+                      className="flex-1"
+                    />
+                    <select
+                      id="currency"
+                      value={formData.currency}
+                      onChange={e => setFormData({ 
+                        ...formData, 
+                        currency: e.target.value as 'CNY' | 'HKD'
+                      })}
+                      className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
+                    >
+                      <option value="CNY">人民币 (¥)</option>
+                      <option value="HKD">港币 (HK$)</option>
+                    </select>
+                  </div>
                   <p className="text-xs text-gray-500 mt-1">设置该学生每节课的费用（如100元/节、200元/节）</p>
                 </div>
                 
@@ -229,6 +247,7 @@ const StudentsPage = () => {
                 <TableHead>年级</TableHead>
                 <TableHead>家长联系方式</TableHead>
                 <TableHead>每节课费率</TableHead>
+                <TableHead>币种</TableHead>
                 <TableHead>备注</TableHead>
                 <TableHead className="text-right">操作</TableHead>
               </TableRow>
@@ -236,7 +255,7 @@ const StudentsPage = () => {
             <TableBody>
               {state.students.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center text-gray-500 py-8">
+                  <TableCell colSpan={7} className="text-center text-gray-500 py-8">
                     暂无学生数据，点击右上角添加学生
                   </TableCell>
                 </TableRow>
@@ -247,7 +266,16 @@ const StudentsPage = () => {
                     <TableCell>{student.grade}</TableCell>
                     <TableCell>{student.parentContact}</TableCell>
                     <TableCell className="text-green-600 font-medium">
-                      ¥{student.ratePerClass.toFixed(2)}/节
+                      {student.currency === 'CNY' ? '¥' : 'HK$'}{student.ratePerClass.toFixed(2)}/节
+                    </TableCell>
+                    <TableCell>
+                      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                        student.currency === 'CNY' 
+                          ? 'bg-blue-100 text-blue-800' 
+                          : 'bg-purple-100 text-purple-800'
+                      }`}>
+                        {student.currency === 'CNY' ? '人民币' : '港币'}
+                      </span>
                     </TableCell>
                     <TableCell className="text-gray-600 text-sm">{student.notes || '-'}</TableCell>
                     <TableCell className="text-right">

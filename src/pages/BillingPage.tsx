@@ -60,7 +60,7 @@ const BillingPage = () => {
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">总收入</CardTitle>
@@ -69,7 +69,31 @@ const BillingPage = () => {
               <p className="text-3xl font-bold text-primary-600">
                 ¥{report.totalRevenue.toFixed(2)}
               </p>
-              <p className="text-sm text-gray-500 mt-1">本月总计</p>
+              <p className="text-sm text-gray-500 mt-1">本月总计（合并）</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">人民币收入</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-3xl font-bold text-blue-600">
+                ¥{report.totalRevenueCNY.toFixed(2)}
+              </p>
+              <p className="text-sm text-gray-500 mt-1">{report.studentBillingsCNY.length} 位学生</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">港币收入</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-3xl font-bold text-purple-600">
+                HK${report.totalRevenueHKD.toFixed(2)}
+              </p>
+              <p className="text-sm text-gray-500 mt-1">{report.studentBillingsHKD.length} 位学生</p>
             </CardContent>
           </Card>
 
@@ -87,18 +111,6 @@ const BillingPage = () => {
               <p className="text-sm text-gray-500 mt-1">本月总计</p>
             </CardContent>
           </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">学生人数</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-bold text-blue-600">
-                {report.studentBillings.length}
-              </p>
-              <p className="text-sm text-gray-500 mt-1">有课程记录的学生</p>
-            </CardContent>
-          </Card>
         </div>
 
         <Tabs defaultValue="students" className="w-full">
@@ -108,45 +120,111 @@ const BillingPage = () => {
           </TabsList>
 
           <TabsContent value="students" className="mt-6">
-            <div className="bg-white rounded-lg shadow">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>学生姓名</TableHead>
-                    <TableHead>完成课程数</TableHead>
-                    <TableHead className="text-right">总费用</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {report.studentBillings.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={3} className="text-center text-gray-500 py-8">
-                        本月暂无费用记录
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    report.studentBillings.map(billing => (
-                      <TableRow key={billing.studentId}>
-                        <TableCell className="font-medium">{billing.studentName}</TableCell>
-                        <TableCell>{billing.completedCount} 节</TableCell>
-                        <TableCell className="text-right font-semibold text-primary-600">
-                          ¥{billing.totalAmount.toFixed(2)}
-                        </TableCell>
+            {/* 人民币学生 */}
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                    人民币 (¥)
+                  </span>
+                  <span className="text-gray-600 text-base">
+                    {report.studentBillingsCNY.length} 位学生，总计 ¥{report.totalRevenueCNY.toFixed(2)}
+                  </span>
+                </h3>
+                <div className="bg-white rounded-lg shadow">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>学生姓名</TableHead>
+                        <TableHead>完成课程数</TableHead>
+                        <TableHead className="text-right">总费用 (¥)</TableHead>
                       </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {report.studentBillingsCNY.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={3} className="text-center text-gray-500 py-8">
+                            本月暂无人民币费用记录
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        report.studentBillingsCNY.map(billing => (
+                          <TableRow key={billing.studentId}>
+                            <TableCell className="font-medium">{billing.studentName}</TableCell>
+                            <TableCell>{billing.completedCount} 节</TableCell>
+                            <TableCell className="text-right font-semibold text-blue-600">
+                              ¥{billing.totalAmount.toFixed(2)}
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+
+              {/* 港币学生 */}
+              <div>
+                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
+                    港币 (HK$)
+                  </span>
+                  <span className="text-gray-600 text-base">
+                    {report.studentBillingsHKD.length} 位学生，总计 HK${report.totalRevenueHKD.toFixed(2)}
+                  </span>
+                </h3>
+                <div className="bg-white rounded-lg shadow">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>学生姓名</TableHead>
+                        <TableHead>完成课程数</TableHead>
+                        <TableHead className="text-right">总费用 (HK$)</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {report.studentBillingsHKD.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={3} className="text-center text-gray-500 py-8">
+                            本月暂无港币费用记录
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        report.studentBillingsHKD.map(billing => (
+                          <TableRow key={billing.studentId}>
+                            <TableCell className="font-medium">{billing.studentName}</TableCell>
+                            <TableCell>{billing.completedCount} 节</TableCell>
+                            <TableCell className="text-right font-semibold text-purple-600">
+                              HK${billing.totalAmount.toFixed(2)}
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
             </div>
 
+            {/* 详细课程明细 */}
             {report.studentBillings.length > 0 && (
-              <div className="mt-6 space-y-4">
+              <div className="mt-8 space-y-4">
                 <h3 className="text-lg font-semibold">详细课程明细</h3>
                 {report.studentBillings.map(billing => (
                   <Card key={billing.studentId}>
                     <CardHeader>
-                      <CardTitle className="text-base">
-                        {billing.studentName} - 共 {billing.completedCount} 节课，总计 ¥{billing.totalAmount.toFixed(2)}
+                      <CardTitle className="text-base flex items-center gap-2">
+                        <span>{billing.studentName}</span>
+                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                          billing.currency === 'CNY' 
+                            ? 'bg-blue-100 text-blue-800' 
+                            : 'bg-purple-100 text-purple-800'
+                        }`}>
+                          {billing.currency === 'CNY' ? '人民币' : '港币'}
+                        </span>
+                        <span className="text-gray-600 font-normal">
+                          - 共 {billing.completedCount} 节课，总计 {billing.currency === 'CNY' ? '¥' : 'HK$'}{billing.totalAmount.toFixed(2)}
+                        </span>
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
@@ -163,7 +241,9 @@ const BillingPage = () => {
                             <TableRow key={schedule.id}>
                               <TableCell>{new Date(schedule.date).toLocaleString('zh-CN')}</TableCell>
                               <TableCell>{schedule.subject}</TableCell>
-                              <TableCell className="text-right">¥{schedule.amount.toFixed(2)}</TableCell>
+                              <TableCell className="text-right">
+                                {billing.currency === 'CNY' ? '¥' : 'HK$'}{schedule.amount.toFixed(2)}
+                              </TableCell>
                             </TableRow>
                           ))}
                         </TableBody>

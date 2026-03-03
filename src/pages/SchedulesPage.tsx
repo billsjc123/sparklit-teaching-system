@@ -428,6 +428,42 @@ const SchedulesPage = () => {
     return totalFee;
   };
 
+  // 按币种分别计算费用
+  const getScheduleFeesByCurrency = (schedule: Schedule) => {
+    const students = schedule.studentIds
+      .map(id => state.students.find(s => s.id === id))
+      .filter(s => s !== undefined);
+    
+    if (students.length === 0) return { CNY: 0, HKD: 0 };
+    
+    const fees = students.reduce((acc, student) => {
+      const fee = student.ratePerClass / schedule.studentIds.length;
+      if (student.currency === 'CNY') {
+        acc.CNY += fee;
+      } else {
+        acc.HKD += fee;
+      }
+      return acc;
+    }, { CNY: 0, HKD: 0 });
+    
+    return fees;
+  };
+
+  // 格式化混合币种的费用显示
+  const formatMixedCurrencyFee = (schedule: Schedule) => {
+    const fees = getScheduleFeesByCurrency(schedule);
+    const parts: string[] = [];
+    
+    if (fees.CNY > 0) {
+      parts.push(`¥${fees.CNY.toFixed(2)}`);
+    }
+    if (fees.HKD > 0) {
+      parts.push(`HK$${fees.HKD.toFixed(2)}`);
+    }
+    
+    return parts.length > 0 ? parts.join(' + ') : '¥0.00';
+  };
+
   return (
     <div className="h-full flex flex-col">
       <PageHeader
@@ -552,7 +588,7 @@ const SchedulesPage = () => {
                         </TableCell>
                         <TableCell>{formatDateTime(schedule.startTime)}</TableCell>
                         <TableCell>{formatDateTime(schedule.endTime)}</TableCell>
-                        <TableCell className="text-green-600 font-medium">¥{getScheduleFee(schedule).toFixed(2)}</TableCell>
+                        <TableCell className="text-green-600 font-medium">{formatMixedCurrencyFee(schedule)}</TableCell>
                         <TableCell>
                           <Badge variant={schedule.status === 'completed' ? 'default' : 'outline'}>
                             {schedule.status === 'completed' ? '已完成' : '待完成'}
@@ -762,7 +798,7 @@ const SchedulesPage = () => {
                                 <div className="text-xs text-gray-500">{student.grade}</div>
                               </div>
                               <div className="text-xs text-green-600 font-medium">
-                                ¥{student.ratePerClass}/节
+                                {student.currency === 'CNY' ? '¥' : 'HK$'}{student.ratePerClass}/节
                               </div>
                             </CommandItem>
                           );
@@ -783,7 +819,7 @@ const SchedulesPage = () => {
                       <div key={studentId} className="flex items-center justify-between text-sm bg-white p-2 rounded">
                         <span>{student.name} ({student.grade})</span>
                         <div className="flex items-center gap-2">
-                          <span className="text-xs text-green-600">¥{student.ratePerClass}/节</span>
+                          <span className="text-xs text-green-600">{student.currency === 'CNY' ? '¥' : 'HK$'}{student.ratePerClass}/节</span>
                           <button
                             type="button"
                             onClick={() => {
@@ -890,7 +926,7 @@ const SchedulesPage = () => {
               <div>
                 <Label className="text-gray-600">课程费用</Label>
                 <p className="font-medium text-green-600 text-lg">
-                  ¥{getScheduleFee(selectedSchedule).toFixed(2)}
+                  {formatMixedCurrencyFee(selectedSchedule)}
                 </p>
               </div>
               <div>
@@ -1088,7 +1124,7 @@ const SchedulesPage = () => {
                   <p><span className="font-medium">教师：</span>{getTeacherName(scheduleToToggle.teacherId)}</p>
                   <p><span className="font-medium">学生：</span>{getStudentNames(scheduleToToggle.studentIds)}</p>
                   <p><span className="font-medium">时间：</span>{formatDateTime(scheduleToToggle.startTime)}</p>
-                  <p><span className="font-medium">费用：</span>¥{getScheduleFee(scheduleToToggle).toFixed(2)}</p>
+                  <p><span className="font-medium">费用：</span>{formatMixedCurrencyFee(scheduleToToggle)}</p>
                 </div>
               </div>
               
@@ -1140,7 +1176,7 @@ const SchedulesPage = () => {
                   <p><span className="font-medium">教师：</span>{getTeacherName(scheduleToDelete.teacherId)}</p>
                   <p><span className="font-medium">学生：</span>{getStudentNames(scheduleToDelete.studentIds)}</p>
                   <p><span className="font-medium">时间：</span>{formatDateTime(scheduleToDelete.startTime)}</p>
-                  <p><span className="font-medium">费用：</span>¥{getScheduleFee(scheduleToDelete).toFixed(2)}</p>
+                  <p><span className="font-medium">费用：</span>{formatMixedCurrencyFee(scheduleToDelete)}</p>
                 </div>
               </div>
               

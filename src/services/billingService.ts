@@ -53,6 +53,7 @@ export const generateMonthlyBilling = (
     studentName: student.name,
     month,
     totalAmount,
+    currency: student.currency,
     completedCount: studentSchedules.length,
     schedules: schedulesDetail,
   };
@@ -68,7 +69,13 @@ export const generateMonthlyReport = (
     .map(student => generateMonthlyBilling(student, month, schedules))
     .filter(billing => billing.completedCount > 0);
 
+  // 分别统计人民币和港币
+  const studentBillingsCNY = studentBillings.filter(b => b.currency === 'CNY');
+  const studentBillingsHKD = studentBillings.filter(b => b.currency === 'HKD');
+
   const totalRevenue = studentBillings.reduce((sum, b) => sum + b.totalAmount, 0);
+  const totalRevenueCNY = studentBillingsCNY.reduce((sum, b) => sum + b.totalAmount, 0);
+  const totalRevenueHKD = studentBillingsHKD.reduce((sum, b) => sum + b.totalAmount, 0);
 
   const teacherStats = teachers.map(teacher => {
     const teacherSchedules = schedules.filter(
@@ -96,7 +103,11 @@ export const generateMonthlyReport = (
   return {
     month,
     totalRevenue,
+    totalRevenueCNY,
+    totalRevenueHKD,
     studentBillings,
+    studentBillingsCNY,
+    studentBillingsHKD,
     teacherStats,
   };
 };
