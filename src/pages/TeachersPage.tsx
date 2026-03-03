@@ -83,8 +83,8 @@ const TeachersPage = () => {
   const confirmDelete = () => {
     if (!teacherToDelete) return;
     
-    const expectedText = `我确认删除${teacherToDelete.name}`;
-    if (deleteConfirmText !== expectedText) {
+    const expectedText = `我确认删除${teacherToDelete.name.trim()}`;
+    if (deleteConfirmText.trim() !== expectedText) {
       alert('❌ 确认文本不正确，请重新输入');
       return;
     }
@@ -342,7 +342,7 @@ const TeachersPage = () => {
                   请输入以下文本以确认删除：
                 </Label>
                 <div className="p-3 bg-gray-100 rounded border-2 border-gray-300 font-mono text-center">
-                  我确认删除{teacherToDelete.name}
+                  我确认删除{teacherToDelete.name.trim()}
                 </div>
                 <Input
                   id="confirmText"
@@ -351,7 +351,7 @@ const TeachersPage = () => {
                   placeholder="请输入上方的确认文本"
                   className="font-mono"
                 />
-                {deleteConfirmText && deleteConfirmText !== `我确认删除${teacherToDelete.name}` && (
+                {deleteConfirmText && deleteConfirmText.trim() !== `我确认删除${teacherToDelete.name.trim()}` && (
                   <p className="text-sm text-red-600">确认文本不匹配</p>
                 )}
               </div>
@@ -372,7 +372,7 @@ const TeachersPage = () => {
             <Button
               variant="destructive"
               onClick={confirmDelete}
-              disabled={!teacherToDelete || deleteConfirmText !== `我确认删除${teacherToDelete.name}`}
+              disabled={!teacherToDelete || deleteConfirmText.trim() !== `我确认删除${teacherToDelete.name.trim()}`}
             >
               确认删除
             </Button>

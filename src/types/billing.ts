@@ -25,6 +25,24 @@ export interface MonthlyBilling {
   }[];
 }
 
+export interface TeacherRevenue {
+  teacherId: string;
+  teacherName: string;
+  completedCount: number;
+  totalHours: number;
+  totalRevenueCNY: number;  // 教师的人民币课程收入
+  totalRevenueHKD: number;  // 教师的港币课程收入
+  totalRevenue: number;     // 教师的总收入（合并）
+  schedules: {
+    id: string;
+    date: string;
+    subject: string;
+    studentNames: string[];
+    currency: Currency;
+    amount: number;
+  }[];
+}
+
 export interface BillingReport {
   month: string;
   totalRevenue: number;
@@ -39,4 +57,5 @@ export interface BillingReport {
     completedCount: number;
     totalHours: number;
   }[];
+  teacherRevenues: TeacherRevenue[]; // 教师收入统计
 }

@@ -117,6 +117,7 @@ const BillingPage = () => {
           <TabsList>
             <TabsTrigger value="students">学生费用明细</TabsTrigger>
             <TabsTrigger value="teachers">教师工作统计</TabsTrigger>
+            <TabsTrigger value="teacher-revenue">教师收入统计</TabsTrigger>
           </TabsList>
 
           <TabsContent value="students" className="mt-6">
@@ -285,6 +286,103 @@ const BillingPage = () => {
                   )}
                 </TableBody>
               </Table>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="teacher-revenue" className="mt-6">
+            <div className="space-y-6">
+              {/* 教师收入汇总表 */}
+              <div className="bg-white rounded-lg shadow">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>教师姓名</TableHead>
+                      <TableHead>完成课程数</TableHead>
+                      <TableHead className="text-right">人民币收入 (¥)</TableHead>
+                      <TableHead className="text-right">港币收入 (HK$)</TableHead>
+                      <TableHead className="text-right">总收入 (合并)</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {report.teacherRevenues.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center text-gray-500 py-8">
+                          本月暂无教师收入数据
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      report.teacherRevenues.map(revenue => (
+                        <TableRow key={revenue.teacherId}>
+                          <TableCell className="font-medium">{revenue.teacherName}</TableCell>
+                          <TableCell>{revenue.completedCount} 节</TableCell>
+                          <TableCell className="text-right font-semibold text-blue-600">
+                            {revenue.totalRevenueCNY > 0 ? `¥${revenue.totalRevenueCNY.toFixed(2)}` : '-'}
+                          </TableCell>
+                          <TableCell className="text-right font-semibold text-purple-600">
+                            {revenue.totalRevenueHKD > 0 ? `HK$${revenue.totalRevenueHKD.toFixed(2)}` : '-'}
+                          </TableCell>
+                          <TableCell className="text-right font-semibold text-green-600">
+                            ¥{revenue.totalRevenue.toFixed(2)}
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+
+              {/* 详细课程明细 */}
+              {report.teacherRevenues.length > 0 && (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold">详细课程明细</h3>
+                  {report.teacherRevenues.map(revenue => (
+                    <Card key={revenue.teacherId}>
+                      <CardHeader>
+                        <CardTitle className="text-base flex items-center gap-2">
+                          <span>{revenue.teacherName}</span>
+                          <span className="text-gray-600 font-normal">
+                            - 共 {revenue.completedCount} 节课
+                          </span>
+                          {revenue.totalRevenueCNY > 0 && (
+                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                              人民币 ¥{revenue.totalRevenueCNY.toFixed(2)}
+                            </span>
+                          )}
+                          {revenue.totalRevenueHKD > 0 && (
+                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                              港币 HK${revenue.totalRevenueHKD.toFixed(2)}
+                            </span>
+                          )}
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>日期时间</TableHead>
+                              <TableHead>科目</TableHead>
+                              <TableHead>学生</TableHead>
+                              <TableHead className="text-right">收入</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {revenue.schedules.map(schedule => (
+                              <TableRow key={schedule.id}>
+                                <TableCell>{new Date(schedule.date).toLocaleString('zh-CN')}</TableCell>
+                                <TableCell>{schedule.subject}</TableCell>
+                                <TableCell>{schedule.studentNames.join(', ')}</TableCell>
+                                <TableCell className="text-right">
+                                  {schedule.currency === 'CNY' ? '¥' : 'HK$'}{schedule.amount.toFixed(2)}
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
             </div>
           </TabsContent>
         </Tabs>

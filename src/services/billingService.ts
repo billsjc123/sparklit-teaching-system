@@ -1,5 +1,5 @@
 import { Schedule, Student } from '@/types';
-import { MonthlyBilling, BillingReport } from '@/types/billing';
+import { MonthlyBilling, BillingReport, TeacherRevenue } from '@/types/billing';
 import { isInMonth } from '@/utils/dateUtils';
 
 export const calculateMonthlyFee = (
@@ -100,6 +100,74 @@ export const generateMonthlyReport = (
     };
   });
 
+  // 计算教师收入统计
+  const teacherRevenues: TeacherRevenue[] = teachers.map(teacher => {
+    const teacherSchedules = schedules.filter(
+      s => s.teacherId === teacher.id && 
+           s.status === 'completed' && 
+           isInMonth(s.startTime, month)
+    );
+
+    let totalRevenueCNY = 0;
+    let totalRevenueHKD = 0;
+
+    const schedulesDetail = teacherSchedules.map(schedule => {
+      const startTime = new Date(schedule.startTime);
+      const endTime = new Date(schedule.endTime);
+      const hours = (endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60);
+
+      // 计算该课程的收入（所有学生的费用总和）
+      let scheduleRevenue = 0;
+      let currency = 'CNY';
+      const studentNames: string[] = [];
+
+      schedule.studentIds.forEach(studentId => {
+        const student = students.find(s => s.id === studentId);
+        if (student) {
+          studentNames.push(student.name);
+          const studentCount = schedule.studentIds.length;
+          const feePerStudent = student.ratePerClass / studentCount;
+          scheduleRevenue += feePerStudent;
+          currency = student.currency; // 假设同一课程的学生使用相同币种
+        }
+      });
+
+      // 累加到对应币种
+      if (currency === 'CNY') {
+        totalRevenueCNY += scheduleRevenue;
+      } else {
+        totalRevenueHKD += scheduleRevenue;
+      }
+
+      return {
+        id: schedule.id,
+        date: schedule.startTime,
+        subject: schedule.subject,
+        studentNames,
+        currency: currency as 'CNY' | 'HKD',
+        amount: scheduleRevenue,
+      };
+    });
+
+    const totalHours = teacherSchedules.reduce((sum, schedule) => {
+      const startTime = new Date(schedule.startTime);
+      const endTime = new Date(schedule.endTime);
+      const hours = (endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60);
+      return sum + hours;
+    }, 0);
+
+    return {
+      teacherId: teacher.id,
+      teacherName: teacher.name,
+      completedCount: teacherSchedules.length,
+      totalHours,
+      totalRevenueCNY,
+      totalRevenueHKD,
+      totalRevenue: totalRevenueCNY + totalRevenueHKD,
+      schedules: schedulesDetail,
+    };
+  }).filter(tr => tr.completedCount > 0); // 只显示有课程的教师
+
   return {
     month,
     totalRevenue,
@@ -109,5 +177,6 @@ export const generateMonthlyReport = (
     studentBillingsCNY,
     studentBillingsHKD,
     teacherStats,
+    teacherRevenues,
   };
 };
