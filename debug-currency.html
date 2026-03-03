@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学生币种数据调试</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background: #4F46E5;
+            color: white;
+        }
+        .cny {
+            color: #2563eb;
+            font-weight: bold;
+        }
+        .hkd {
+            color: #9333ea;
+            font-weight: bold;
+        }
+        button {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+        button:hover {
+            background: #dc2626;
+        }
+        button.refresh {
+            background: #10b981;
+        }
+        button.refresh:hover {
+            background: #059669;
+        }
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        .warning {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        pre {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>🔍 学生币种数据调试工具</h1>
+        
+        <div class="warning">
+            ⚠️ <strong>提示：</strong>如果发现币种显示错误，可以尝试清除浏览器缓存或使用下方的清除按钮。
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <button class="refresh" onclick="loadData()">🔄 刷新数据</button>
+            <button onclick="clearData()">🗑️ 清除 LocalStorage</button>
+            <button onclick="window.location.href='http://120.76.158.63'">↩️ 返回系统</button>
+        </div>
+
+        <div id="data-container"></div>
+    </div>
+
+    <script>
+        function loadData() {
+            const dataContainer = document.getElementById('data-container');
+            
+            // 读取 localStorage 数据
+            const rawData = localStorage.getItem('teaching-system-data');
+            
+            if (!rawData) {
+                dataContainer.innerHTML = '<div class="no-data">📭 LocalStorage 中没有找到数据</div>';
+                return;
+            }
+
+            try {
+                const data = JSON.parse(rawData);
+                const students = data.students || [];
+
+                if (students.length === 0) {
+                    dataContainer.innerHTML = '<div class="no-data">📭 暂无学生数据</div>';
+                    return;
+                }
+
+                let html = '<h2>学生数据列表 (共 ' + students.length + ' 条)</h2>';
+                html += '<table>';
+                html += '<thead><tr>';
+                html += '<th>姓名</th>';
+                html += '<th>年级</th>';
+                html += '<th>每节课费率</th>';
+                html += '<th>币种</th>';
+                html += '<th>币种代码</th>';
+                html += '<th>创建时间</th>';
+                html += '</tr></thead>';
+                html += '<tbody>';
+
+                students.forEach(student => {
+                    const currencyClass = student.currency === 'CNY' ? 'cny' : 'hkd';
+                    const currencySymbol = student.currency === 'CNY' ? '¥' : 'HK$';
+                    const currencyName = student.currency === 'CNY' ? '人民币' : '港币';
+                    
+                    html += '<tr>';
+                    html += '<td>' + student.name + '</td>';
+                    html += '<td>' + student.grade + '</td>';
+                    html += '<td class="' + currencyClass + '">' + currencySymbol + student.ratePerClass.toFixed(2) + '/节</td>';
+                    html += '<td class="' + currencyClass + '">' + currencyName + '</td>';
+                    html += '<td><code>' + student.currency + '</code></td>';
+                    html += '<td>' + new Date(student.createdAt).toLocaleString('zh-CN') + '</td>';
+                    html += '</tr>';
+                });
+
+                html += '</tbody></table>';
+
+                // 显示原始 JSON 数据
+                html += '<h2 style="margin-top: 30px;">原始 JSON 数据</h2>';
+                html += '<pre>' + JSON.stringify(students, null, 2) + '</pre>';
+
+                dataContainer.innerHTML = html;
+            } catch (e) {
+                dataContainer.innerHTML = '<div class="no-data">❌ 数据解析失败: ' + e.message + '</div>';
+            }
+        }
+
+        function clearData() {
+            if (confirm('确定要清除 LocalStorage 中的所有数据吗？\n\n⚠️ 这将删除所有学生、教师和课程数据！')) {
+                localStorage.removeItem('teaching-system-data');
+                alert('✅ LocalStorage 已清除，页面将刷新');
+                location.reload();
+            }
+        }
+
+        // 页面加载时自动加载数据
+        loadData();
+    </script>
+</body>
+</html>

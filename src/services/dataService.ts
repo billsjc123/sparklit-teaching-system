@@ -2,7 +2,8 @@ import { AppData } from '@/types';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
-const API_URL = 'http://localhost:3002/api';
+// 使用相对路径，生产环境通过 Nginx 反向代理访问
+const API_URL = '/api';
 const STORAGE_KEY = 'teaching-system-data';
 const BACKUP_REMINDER_KEY = 'teaching-system-backup-reminder';
 const VERSION = '1.0.0';

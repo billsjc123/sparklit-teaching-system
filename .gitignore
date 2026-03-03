@@ -46,3 +46,6 @@ ecosystem.config.js
 
 # OS
 Thumbs.db
+SECRETS_SETUP.md
+.github-secrets*.txt
+*.secret

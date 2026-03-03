@@ -17,6 +17,14 @@ export default defineConfig({
     allowedHosts: true,
     hmr: {
       overlay: true
+    },
+    // 开发环境 API 代理
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3002',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '/api')
+      }
     }
   },
   // 优化构建和缓存
