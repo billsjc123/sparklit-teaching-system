@@ -9,6 +9,7 @@ import { requireAuth } from './middlewares/auth.middleware.js';
 import authRoutes from './routes/auth.routes.js';
 import userRoutes from './routes/user.routes.js';
 import statsRoutes from './routes/stats.routes.js';
+import { autoMigrate } from './migrations/auto-migrate.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -327,9 +328,24 @@ app.get('/health', (req, res) => {
   });
 });
 
-// 启动服务器
-app.listen(PORT, () => {
-  console.log(`✅ 数据服务器运行在 http://localhost:${PORT}`);
-  console.log(`📊 使用 SQLite 数据库`);
-  console.log(`🗄️  数据库版本: ${systemDb.getVersion()}`);
-});
+// 启动服务器（带自动迁移）
+async function startServer() {
+  try {
+    console.log('🔍 检查数据库迁移...');
+    
+    // 执行自动迁移
+    await autoMigrate();
+    
+    // 启动服务器
+    app.listen(PORT, () => {
+      console.log(`✅ 数据服务器运行在 http://localhost:${PORT}`);
+      console.log(`📊 使用 SQLite 数据库`);
+      console.log(`🗄️  数据库版本: ${systemDb.getVersion()}`);
+    });
+  } catch (error) {
+    console.error('❌ 服务器启动失败:', error);
+    process.exit(1);
+  }
+}
+
+startServer();

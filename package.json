@@ -18,7 +18,11 @@
     "deploy": "bash deploy.sh production",
     "auto-deploy": "bash auto-deploy.sh",
     "watch-deploy": "bash watch-and-deploy.sh",
-    "migrate": "node server/migrate.js"
+    "migrate": "node server/migrations/migrate.js",
+    "migrate:status": "node server/migrations/migrate.js status",
+    "migrate:up": "node server/migrations/migrate.js up",
+    "migrate:down": "node server/migrations/migrate.js down",
+    "db:backup": "node server/migrations/migrate.js backup"
   },
   "dependencies": {
     "@radix-ui/react-alert-dialog": "^1.1.15",
