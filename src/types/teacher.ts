@@ -4,6 +4,7 @@ export interface Teacher {
   email: string;
   phone: string;
   subjects: string[];
+  notes?: string;
   createdAt: string;
   updatedAt: string;
 }
