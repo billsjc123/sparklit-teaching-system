@@ -22,7 +22,9 @@
     "migrate:status": "node server/migrations/migrate.js status",
     "migrate:up": "node server/migrations/migrate.js up",
     "migrate:down": "node server/migrations/migrate.js down",
-    "db:backup": "node server/migrations/migrate.js backup"
+    "db:backup": "node server/migrations/migrate.js backup",
+    "admin:create": "node server/create-admin.js",
+    "admin:reset": "node server/reset-user-password.js"
   },
   "dependencies": {
     "@radix-ui/react-alert-dialog": "^1.1.15",
