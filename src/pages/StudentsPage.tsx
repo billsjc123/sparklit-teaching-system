@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
@@ -24,6 +25,7 @@ const StudentsPage = () => {
     parentContact: '',
     ratePerClass: 0,
     currency: 'CNY', // 默认人民币
+    teacherId: '',
     notes: '',
   });
 
@@ -128,6 +130,7 @@ const StudentsPage = () => {
       parentContact: '',
       ratePerClass: 0,
       currency: 'CNY',
+      teacherId: '',
       notes: '',
     });
   };
@@ -169,6 +172,27 @@ const StudentsPage = () => {
                     required
                     placeholder="例如：初一、高二"
                   />
+                </div>
+
+                <div>
+                  <Label htmlFor="teacherId">绑定教师</Label>
+                  <Select 
+                    value={formData.teacherId} 
+                    onValueChange={value => setFormData({ ...formData, teacherId: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="请选择教师（可选）" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">不绑定教师</SelectItem>
+                      {state.teachers.map(teacher => (
+                        <SelectItem key={teacher.id} value={teacher.id}>
+                          {teacher.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-gray-500 mt-1">绑定后该学生将归属于对应教师</p>
                 </div>
                 
                 <div>
@@ -255,50 +279,62 @@ const StudentsPage = () => {
             <TableBody>
               {state.students.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center text-gray-500 py-8">
+                  <TableCell colSpan={8} className="text-center text-gray-500 py-8">
                     暂无学生数据，点击右上角添加学生
                   </TableCell>
                 </TableRow>
               ) : (
-                state.students.map(student => (
-                  <TableRow key={student.id}>
-                    <TableCell className="font-medium">{student.name}</TableCell>
-                    <TableCell>{student.grade}</TableCell>
-                    <TableCell>{student.parentContact}</TableCell>
-                    <TableCell className="text-green-600 font-medium">
-                      {student.currency === 'CNY' ? '¥' : 'HK$'}{student.ratePerClass.toFixed(2)}/节
-                    </TableCell>
-                    <TableCell>
-                      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                        student.currency === 'CNY' 
-                          ? 'bg-blue-100 text-blue-800' 
-                          : 'bg-purple-100 text-purple-800'
-                      }`}>
-                        {student.currency === 'CNY' ? '人民币' : '港币'}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-gray-600 text-sm">{student.notes || '-'}</TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex gap-2 justify-end">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleEdit(student)}
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDelete(student.id)}
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
+                state.students.map(student => {
+                  const teacher = state.teachers.find(t => t.id === student.teacherId);
+                  return (
+                    <TableRow key={student.id}>
+                      <TableCell className="font-medium">{student.name}</TableCell>
+                      <TableCell>{student.grade}</TableCell>
+                      <TableCell>
+                        {teacher ? (
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            {teacher.name}
+                          </span>
+                        ) : (
+                          <span className="text-gray-400 text-sm">未绑定</span>
+                        )}
+                      </TableCell>
+                      <TableCell>{student.parentContact}</TableCell>
+                      <TableCell className="text-green-600 font-medium">
+                        {student.currency === 'CNY' ? '¥' : 'HK$'}{student.ratePerClass.toFixed(2)}/节
+                      </TableCell>
+                      <TableCell>
+                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                          student.currency === 'CNY' 
+                            ? 'bg-blue-100 text-blue-800' 
+                            : 'bg-purple-100 text-purple-800'
+                        }`}>
+                          {student.currency === 'CNY' ? '人民币' : '港币'}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-gray-600 text-sm">{student.notes || '-'}</TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex gap-2 justify-end">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleEdit(student)}
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDelete(student.id)}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
               )}
             </TableBody>
           </Table>

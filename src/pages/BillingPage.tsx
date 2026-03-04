@@ -15,12 +15,46 @@ const BillingPage = () => {
   const [selectedMonth, setSelectedMonth] = useState(getMonthString());
 
   const report = useMemo(() => {
-    return generateMonthlyReport(
+    const result = generateMonthlyReport(
       selectedMonth,
       state.students,
       state.schedules,
       state.teachers
     );
+    
+    // 调试信息 - Jennifer
+    const jennifer = state.students.find(s => s.name === 'Jennifer');
+    if (jennifer) {
+      console.log('=== Jennifer 调试信息 ===');
+      console.log('Jennifer 学生信息:', jennifer);
+      console.log('  - ID:', jennifer.id);
+      console.log('  - 币种:', jennifer.currency);
+      console.log('  - 费率:', jennifer.ratePerClass);
+      
+      const jenniferSchedules = state.schedules.filter(s => 
+        s.studentIds.includes(jennifer.id) && s.startTime.startsWith(selectedMonth)
+      );
+      console.log(`Jennifer 在 ${selectedMonth} 的课程:`, jenniferSchedules);
+      
+      const completedSchedules = jenniferSchedules.filter(s => s.status === 'completed');
+      console.log('已完成课程:', completedSchedules);
+      
+      let totalFee = 0;
+      completedSchedules.forEach(s => {
+        const fee = jennifer.ratePerClass / s.studentIds.length;
+        totalFee += fee;
+        console.log(`  - ${s.startTime} | ${s.subject} | 费用: ${fee}`);
+      });
+      console.log('Jennifer 总费用:', totalFee, jennifer.currency);
+    }
+    
+    console.log('=== 汇总 ===');
+    console.log('人民币总收入:', result.totalRevenueCNY);
+    console.log('港币总收入:', result.totalRevenueHKD);
+    console.log('人民币学生账单:', result.studentBillingsCNY);
+    console.log('港币学生账单:', result.studentBillingsHKD);
+    
+    return result;
   }, [selectedMonth, state.students, state.schedules, state.teachers]);
 
   const handleExport = () => {
@@ -60,19 +94,7 @@ const BillingPage = () => {
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">总收入</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-bold text-primary-600">
-                ¥{report.totalRevenue.toFixed(2)}
-              </p>
-              <p className="text-sm text-gray-500 mt-1">本月总计（合并）</p>
-            </CardContent>
-          </Card>
-
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">人民币收入</CardTitle>
@@ -267,13 +289,12 @@ const BillingPage = () => {
                       <TableHead className="text-right">总课时 (小时)</TableHead>
                       <TableHead className="text-right">人民币收入 (¥)</TableHead>
                       <TableHead className="text-right">港币收入 (HK$)</TableHead>
-                      <TableHead className="text-right">总收入 (合并)</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {report.teacherRevenues.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={6} className="text-center text-gray-500 py-8">
+                        <TableCell colSpan={5} className="text-center text-gray-500 py-8">
                           本月暂无教师数据
                         </TableCell>
                       </TableRow>
@@ -290,9 +311,6 @@ const BillingPage = () => {
                           </TableCell>
                           <TableCell className="text-right font-semibold text-purple-600">
                             {revenue.totalRevenueHKD > 0 ? `HK$${revenue.totalRevenueHKD.toFixed(2)}` : '-'}
-                          </TableCell>
-                          <TableCell className="text-right font-semibold text-green-600">
-                            ¥{revenue.totalRevenue.toFixed(2)}
                           </TableCell>
                         </TableRow>
                       ))

@@ -32,6 +32,10 @@ server/data/*.db
 server/data/*.db-*
 !server/data/.gitkeep
 
+# SQLite databases
+*.db
+*.db-*
+
 # Environment variables
 .env
 .env.local

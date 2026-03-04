@@ -73,7 +73,6 @@ export const generateMonthlyReport = (
   const studentBillingsCNY = studentBillings.filter(b => b.currency === 'CNY');
   const studentBillingsHKD = studentBillings.filter(b => b.currency === 'HKD');
 
-  const totalRevenue = studentBillings.reduce((sum, b) => sum + b.totalAmount, 0);
   const totalRevenueCNY = studentBillingsCNY.reduce((sum, b) => sum + b.totalAmount, 0);
   const totalRevenueHKD = studentBillingsHKD.reduce((sum, b) => sum + b.totalAmount, 0);
 
@@ -163,14 +162,12 @@ export const generateMonthlyReport = (
       totalHours,
       totalRevenueCNY,
       totalRevenueHKD,
-      totalRevenue: totalRevenueCNY + totalRevenueHKD,
       schedules: schedulesDetail,
     };
   }).filter(tr => tr.completedCount > 0); // 只显示有课程的教师
 
   return {
     month,
-    totalRevenue,
     totalRevenueCNY,
     totalRevenueHKD,
     studentBillings,

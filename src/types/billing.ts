@@ -32,7 +32,6 @@ export interface TeacherRevenue {
   totalHours: number;
   totalRevenueCNY: number;  // 教师的人民币课程收入
   totalRevenueHKD: number;  // 教师的港币课程收入
-  totalRevenue: number;     // 教师的总收入（合并）
   schedules: {
     id: string;
     date: string;
@@ -45,7 +44,6 @@ export interface TeacherRevenue {
 
 export interface BillingReport {
   month: string;
-  totalRevenue: number;
   totalRevenueCNY: number; // 人民币总收入
   totalRevenueHKD: number; // 港币总收入
   studentBillings: MonthlyBilling[];

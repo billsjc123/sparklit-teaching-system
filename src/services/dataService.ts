@@ -18,7 +18,9 @@ const getDefaultData = (): AppData => ({
 // 从服务器加载数据
 export const loadData = async (): Promise<AppData> => {
   try {
-    const response = await fetch(`${API_URL}/data`);
+    const response = await fetch(`${API_URL}/data`, {
+      credentials: 'include', // 发送 cookie
+    });
     if (!response.ok) {
       throw new Error('无法连接到数据服务器');
     }
@@ -45,6 +47,7 @@ export const saveData = async (data: AppData): Promise<void> => {
   try {
     const response = await fetch(`${API_URL}/data`, {
       method: 'POST',
+      credentials: 'include', // 发送 cookie
       headers: {
         'Content-Type': 'application/json',
       },

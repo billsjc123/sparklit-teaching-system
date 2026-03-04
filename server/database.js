@@ -159,8 +159,8 @@ export const studentDb = {
 
   create(student) {
     const stmt = db.prepare(`
-      INSERT INTO students (id, name, grade, phone, parentContact, ratePerClass, address, notes, createdAt, updatedAt)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO students (id, name, grade, phone, parentContact, ratePerClass, currency, teacherId, address, notes, createdAt, updatedAt)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
     return stmt.run(
       student.id,
@@ -169,6 +169,8 @@ export const studentDb = {
       student.phone || null,
       student.parentContact || null,
       student.ratePerClass || null,
+      student.currency || 'CNY',
+      student.teacherId || null,
       student.address || null,
       student.notes || null,
       student.createdAt,
@@ -179,7 +181,7 @@ export const studentDb = {
   update(id, student) {
     const stmt = db.prepare(`
       UPDATE students 
-      SET name = ?, grade = ?, phone = ?, parentContact = ?, ratePerClass = ?, address = ?, notes = ?, updatedAt = ?
+      SET name = ?, grade = ?, phone = ?, parentContact = ?, ratePerClass = ?, currency = ?, teacherId = ?, address = ?, notes = ?, updatedAt = ?
       WHERE id = ?
     `);
     return stmt.run(
@@ -188,6 +190,8 @@ export const studentDb = {
       student.phone || null,
       student.parentContact || null,
       student.ratePerClass || null,
+      student.currency || 'CNY',
+      student.teacherId || null,
       student.address || null,
       student.notes || null,
       new Date().toISOString(),
@@ -295,6 +299,82 @@ export const scheduleDb = {
 
   delete(id) {
     return db.prepare('DELETE FROM schedules WHERE id = ?').run(id);
+  }
+};
+
+// 用户操作
+export const userDb = {
+  // 获取所有用户
+  getAll() {
+    return db.prepare('SELECT id, username, role, teacherId, createdAt, updatedAt FROM users ORDER BY createdAt DESC').all();
+  },
+
+  // 根据ID获取用户（不含密码）
+  getById(id) {
+    return db.prepare('SELECT id, username, role, teacherId, createdAt, updatedAt FROM users WHERE id = ?').get(id);
+  },
+
+  // 根据用户名获取用户（含密码，用于登录验证）
+  getByUsername(username) {
+    return db.prepare('SELECT * FROM users WHERE username = ?').get(username);
+  },
+
+  // 创建用户
+  create(user) {
+    const stmt = db.prepare(`
+      INSERT INTO users (id, username, password, role, teacherId, createdAt, updatedAt)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `);
+    return stmt.run(
+      user.id,
+      user.username,
+      user.password,
+      user.role,
+      user.teacherId || null,
+      user.createdAt,
+      user.updatedAt
+    );
+  },
+
+  // 更新用户密码
+  updatePassword(id, hashedPassword) {
+    const stmt = db.prepare(`
+      UPDATE users 
+      SET password = ?, updatedAt = ?
+      WHERE id = ?
+    `);
+    return stmt.run(hashedPassword, new Date().toISOString(), id);
+  },
+
+  // 更新用户信息（不包括密码）
+  update(id, user) {
+    const stmt = db.prepare(`
+      UPDATE users 
+      SET username = ?, teacherId = ?, updatedAt = ?
+      WHERE id = ?
+    `);
+    return stmt.run(
+      user.username,
+      user.teacherId || null,
+      new Date().toISOString(),
+      id
+    );
+  },
+
+  // 删除用户
+  delete(id) {
+    return db.prepare('DELETE FROM users WHERE id = ?').run(id);
+  },
+
+  // 检查用户名是否已存在
+  usernameExists(username, excludeId = null) {
+    if (excludeId) {
+      const result = db.prepare('SELECT COUNT(*) as count FROM users WHERE username = ? AND id != ?').get(username, excludeId);
+      return result.count > 0;
+    } else {
+      const result = db.prepare('SELECT COUNT(*) as count FROM users WHERE username = ?').get(username);
+      return result.count > 0;
+    }
   }
 };
 

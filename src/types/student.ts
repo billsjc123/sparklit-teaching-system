@@ -7,6 +7,7 @@ export interface Student {
   parentContact: string;
   ratePerClass: number; // 每节课费率
   currency: Currency; // 币种
+  teacherId?: string; // 绑定的教师ID
   notes?: string;
   createdAt: string;
   updatedAt: string;
@@ -18,6 +19,7 @@ export interface StudentFormData {
   parentContact: string;
   ratePerClass: number; // 每节课费率
   currency: Currency; // 币种
+  teacherId?: string; // 绑定的教师ID
   customRate?: number;
   notes?: string;
 }
