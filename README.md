@@ -27,8 +27,32 @@ pm2 start ecosystem.config.cjs --env production
 pm2 status
 
 # 查看日志
-pm2 logs sparklit-teaching-system
+pm2 logs teaching-system-api
 ```
+
+### ⚡ 快捷脚本
+
+```bash
+# 快速重启服务
+npm run restart
+
+# 完整部署（拉取代码+构建+重启）
+npm run deploy:full
+
+# 查看日志
+npm run logs
+npm run logs:err  # 只看错误日志
+
+# 用户管理
+npm run admin:reset 用户名 密码  # 重置密码
+node server/list-users.js         # 列出所有用户
+
+# 数据库操作
+npm run migrate:up      # 运行迁移
+npm run db:backup       # 备份数据库
+```
+
+📖 **详细说明**：[SCRIPTS_USAGE.md](./SCRIPTS_USAGE.md) | [快速参考](./QUICK_COMMANDS.md)
 
 ## 🔧 GitHub Actions 自动部署
 
