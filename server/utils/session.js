@@ -21,7 +21,7 @@ export function createSessionMiddleware() {
     cookie: {
       httpOnly: true,
       secure: false, // 如果使用 HTTPS，设置为 true
-      sameSite: 'lax',
+      sameSite: 'lax', // Nginx 反向代理下使用 lax
       maxAge: 30 * 24 * 60 * 60 * 1000 // 默认30天
     },
     name: 'teaching.sid'

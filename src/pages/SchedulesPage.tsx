@@ -67,7 +67,7 @@ const SchedulesPage = () => {
   const availableSubjects = useMemo(() => {
     if (!formData.teacherId) return [];
     const teacher = state.teachers.find(t => t.id === formData.teacherId);
-    return teacher?.subjects || [];
+    return (teacher?.subjects || []).filter(subject => subject && subject.trim() !== '');
   }, [formData.teacherId, state.teachers]);
 
   // 筛选后的学生列表（用于搜索）
@@ -523,11 +523,13 @@ const SchedulesPage = () => {
                   </SelectItem>
                 )}
                 <SelectItem value="all">所有教师</SelectItem>
-                {state.teachers.map(teacher => (
-                  <SelectItem key={teacher.id} value={teacher.id}>
-                    {teacher.name}
-                  </SelectItem>
-                ))}
+                {state.teachers
+                  .filter(teacher => teacher.id && teacher.id.trim() !== '')
+                  .map(teacher => (
+                    <SelectItem key={teacher.id} value={teacher.id}>
+                      {teacher.name}
+                    </SelectItem>
+                  ))}
               </SelectContent>
             </Select>
             {selectedTeacherId && selectedTeacherId !== 'all' && (
@@ -675,11 +677,13 @@ const SchedulesPage = () => {
                       选择教师
                     </SelectItem>
                   )}
-                  {state.teachers.map(teacher => (
-                    <SelectItem key={teacher.id} value={teacher.id}>
-                      {teacher.name}
-                    </SelectItem>
-                  ))}
+                  {state.teachers
+                    .filter(teacher => teacher.id && teacher.id.trim() !== '')
+                    .map(teacher => (
+                      <SelectItem key={teacher.id} value={teacher.id}>
+                        {teacher.name}
+                      </SelectItem>
+                    ))}
                 </SelectContent>
               </Select>
             </div>

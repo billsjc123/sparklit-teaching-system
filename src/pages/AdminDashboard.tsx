@@ -227,11 +227,13 @@ export default function AdminDashboard() {
                           <SelectValue placeholder="请选择教师" />
                         </SelectTrigger>
                         <SelectContent>
-                          {availableTeachers.map(teacher => (
-                            <SelectItem key={teacher.id} value={teacher.id}>
-                              {teacher.name}
-                            </SelectItem>
-                          ))}
+                          {availableTeachers
+                            .filter(teacher => teacher.id && teacher.id.trim() !== '')
+                            .map(teacher => (
+                              <SelectItem key={teacher.id} value={teacher.id}>
+                                {teacher.name}
+                              </SelectItem>
+                            ))}
                         </SelectContent>
                       </Select>
                       {availableTeachers.length === 0 && (

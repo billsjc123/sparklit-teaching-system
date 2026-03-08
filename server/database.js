@@ -397,8 +397,12 @@ export const systemDb = {
 
   // 导入数据（从 JSON）
   importFromJson(data) {
+    // 临时禁用外键约束以避免删除顺序问题
+    // 注意：必须使用 exec() 而不是 pragma() 来在事务中生效
+    db.exec('PRAGMA foreign_keys = OFF');
+
     const transaction = db.transaction(() => {
-      // 清空现有数据
+      // 清空现有数据（先删除有外键依赖的表）
       db.prepare('DELETE FROM schedules').run();
       db.prepare('DELETE FROM students').run();
       db.prepare('DELETE FROM teachers').run();
@@ -417,15 +421,49 @@ export const systemDb = {
         });
       }
 
-      // 导入课程安排
+      // 导入课程安排（验证外键）
       if (data.schedules && Array.isArray(data.schedules)) {
+        const teacherIds = new Set(data.teachers?.map(t => t.id) || []);
+        const studentIds = new Set(data.students?.map(s => s.id) || []);
+
         data.schedules.forEach(schedule => {
-          scheduleDb.create(schedule);
+          // 验证教师ID存在
+          if (!teacherIds.has(schedule.teacherId)) {
+            console.warn(`⚠️  课程 ${schedule.id} 引用了不存在的教师 ${schedule.teacherId}，已跳过`);
+            return;
+          }
+
+          // 验证学生ID存在
+          const scheduleStudentIds = JSON.parse(schedule.studentIds || '[]');
+          const validStudentIds = scheduleStudentIds.filter(sid => studentIds.has(sid));
+          
+          if (validStudentIds.length !== scheduleStudentIds.length) {
+            console.warn(`⚠️  课程 ${schedule.id} 部分学生ID无效，已过滤`);
+          }
+
+          if (validStudentIds.length === 0) {
+            console.warn(`⚠️  课程 ${schedule.id} 没有有效的学生，已跳过`);
+            return;
+          }
+
+          // 创建课程（使用过滤后的学生ID）
+          scheduleDb.create({
+            ...schedule,
+            studentIds: JSON.stringify(validStudentIds)
+          });
         });
       }
     });
 
-    transaction();
+    try {
+      transaction();
+      // 重新启用外键约束
+      db.exec('PRAGMA foreign_keys = ON');
+    } catch (error) {
+      // 出错时也要恢复外键约束
+      db.exec('PRAGMA foreign_keys = ON');
+      throw error;
+    }
   }
 };
 

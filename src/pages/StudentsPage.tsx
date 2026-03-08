@@ -177,19 +177,21 @@ const StudentsPage = () => {
                 <div>
                   <Label htmlFor="teacherId">绑定教师</Label>
                   <Select 
-                    value={formData.teacherId} 
-                    onValueChange={value => setFormData({ ...formData, teacherId: value })}
+                    value={formData.teacherId || 'none'} 
+                    onValueChange={value => setFormData({ ...formData, teacherId: value === 'none' ? '' : value })}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="请选择教师（可选）" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">不绑定教师</SelectItem>
-                      {state.teachers.map(teacher => (
-                        <SelectItem key={teacher.id} value={teacher.id}>
-                          {teacher.name}
-                        </SelectItem>
-                      ))}
+                      <SelectItem value="none">不绑定教师</SelectItem>
+                      {state.teachers
+                        .filter(teacher => teacher.id && teacher.id.trim() !== '')
+                        .map(teacher => (
+                          <SelectItem key={teacher.id} value={teacher.id}>
+                            {teacher.name}
+                          </SelectItem>
+                        ))}
                     </SelectContent>
                   </Select>
                   <p className="text-xs text-gray-500 mt-1">绑定后该学生将归属于对应教师</p>
