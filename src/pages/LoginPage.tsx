@@ -153,10 +153,6 @@ export default function LoginPage() {
                 '登录'
               )}
             </Button>
-
-            <div className="pt-4 text-center text-sm text-gray-500">
-              <p>默认管理员账号: <span className="font-mono text-gray-700">admin / admin123</span></p>
-            </div>
           </form>
         </CardContent>
       </Card>

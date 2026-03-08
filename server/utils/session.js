@@ -20,7 +20,7 @@ export function createSessionMiddleware() {
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: false, // 如果使用 HTTPS，设置为 true
       sameSite: 'lax',
       maxAge: 30 * 24 * 60 * 60 * 1000 // 默认30天
     },

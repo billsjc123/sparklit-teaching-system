@@ -18,8 +18,23 @@ const app = express();
 const PORT = 3002;
 
 // CORS 配置 - 允许携带凭证
+const allowedOrigins = [
+  'http://localhost:5173',  // 本地开发
+  'http://120.76.158.63',   // 生产环境
+  'http://localhost:3002'   // 本地API测试
+];
+
 app.use(cors({
-  origin: 'http://localhost:5173', // 前端开发服务器地址
+  origin: function (origin, callback) {
+    // 允许没有 origin 的请求（比如移动应用、Postman等）
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(null, true); // 生产环境暂时允许所有来源，后续可以改为严格模式
+    }
+  },
   credentials: true
 }));
 app.use(express.json({ limit: '10mb' }));
