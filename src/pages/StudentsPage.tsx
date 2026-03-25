@@ -281,26 +281,16 @@ const StudentsPage = () => {
             <TableBody>
               {state.students.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center text-gray-500 py-8">
+                  <TableCell colSpan={7} className="text-center text-gray-500 py-8">
                     暂无学生数据，点击右上角添加学生
                   </TableCell>
                 </TableRow>
               ) : (
                 state.students.map(student => {
-                  const teacher = state.teachers.find(t => t.id === student.teacherId);
                   return (
                     <TableRow key={student.id}>
                       <TableCell className="font-medium">{student.name}</TableCell>
                       <TableCell>{student.grade}</TableCell>
-                      <TableCell>
-                        {teacher ? (
-                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                            {teacher.name}
-                          </span>
-                        ) : (
-                          <span className="text-gray-400 text-sm">未绑定</span>
-                        )}
-                      </TableCell>
                       <TableCell>{student.parentContact}</TableCell>
                       <TableCell className="text-green-600 font-medium">
                         {student.currency === 'CNY' ? '¥' : 'HK$'}{student.ratePerClass.toFixed(2)}/节
